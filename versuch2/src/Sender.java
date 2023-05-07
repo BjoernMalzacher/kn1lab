@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.time.Duration;
+import java.util.Scanner;
 import java.util.concurrent.*;
 
 /**
@@ -30,31 +31,59 @@ public class Sender {
      * @throws IOException Wird geworfen falls Sockets nicht erzeugt werden können.
      */
     private void send() throws IOException {
-/*   	//Text einlesen und in Worte zerlegen
 
+        
+       
+        //Text einlesen und in Worte zerlegen
+        String txt = new Scanner(System.in).nextLine();
+      
         // Socket erzeugen auf Port 9998 und Timeout auf eine Sekunde setzen
-
+        DatagramSocket socket = new DatagramSocket(9998);
+        socket.setSoTimeout(1000);
+        String[] list = txt.split(" ");
         // Iteration über den Konsolentext
-        while (true) {
+        int index = 0;
+        Packet packetIn = null;
+        int seqnumb = 0;
+        while (index<list.length) {
+            
+            Packet p = new Packet(list[index].length()*2, seqnumb, false, list[index].getBytes());
+            int newseqnumb =seqnumb + (list[index].length()*2);
         	// Paket an Port 9997 senden
-        	
+            ByteArrayOutputStream b = new ByteArrayOutputStream();
+            ObjectOutputStream o = new ObjectOutputStream(b);
+            o.writeObject(p);
+            byte[] buf = b.toByteArray();
+            InetAddress address = InetAddress.getByName("localhost");
+            DatagramPacket pack = new DatagramPacket(buf, buf.length,address, 9997);
+            System.out.println("old seq:"+ seqnumb);
+            socket.send(pack);
             try {
-                // Auf ACK warten und erst dann Schleifenzähler inkrementieren
-
+                buf = new byte[256];
+                pack = new DatagramPacket(buf, buf.length);
+                socket.receive(pack);
+                ObjectInputStream is = new ObjectInputStream(new ByteArrayInputStream(pack.getData()));
+                packetIn = (Packet) is.readObject();
+                String received = new String(packetIn.getPayload(),0,packetIn.getPayload().length);
+                System.out.println("returnd word:"+received);
+                index+=1;
+                seqnumb = newseqnumb;
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
             } catch (SocketTimeoutException e) {
             	System.out.println("Receive timed out, retrying...");
+
             }
+            
         }
         
         // Wenn alle Packete versendet und von der Gegenseite bestätigt sind, Programm beenden
-        clientSocket.close();
+        socket.close();
         
         if(System.getProperty("os.name").equals("Linux")) {
-            clientSocket.disconnect();
+            socket.disconnect();
         }
-*/
+
         System.exit(0);
     }
 }
