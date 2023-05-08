@@ -46,7 +46,6 @@ public class Sender {
         Packet packetIn = null;
         int seqnumb = 0;
         while (index<list.length) {
-            
             Packet p = new Packet(list[index].length()*2, seqnumb, false, list[index].getBytes());
             int newseqnumb =seqnumb + (list[index].length()*2);
         	// Paket an Port 9997 senden

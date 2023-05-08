@@ -1,3 +1,4 @@
+import java.util.Date;
 import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -13,8 +14,23 @@ public class Send_Mail {
 	}
 	
 	public static void sendMail() {
+		Properties props = new Properties();
+		props.put("mail.pop3.host", "localhost");
+		props.put("mail.debug", "true");
+		props.put("mail.debug.quote", "true");
+		Session session = Session.getInstance(props, null);
+
+		session.setDebug(true);
+
 		try {
-			// your code here
+			MimeMessage msg = new MimeMessage(session);
+			msg.setFrom("me@localhost");
+			msg.setRecipients(Message.RecipientType.TO,
+					"labrat@localhost");
+			msg.setSubject("Servus!");
+			msg.setSentDate(new Date());
+			msg.setText("Wir lieben Kommunikationsnetze!\n");
+			Transport.send(msg, "labrat@localhost", "kn1lab");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
